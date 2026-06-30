@@ -1,0 +1,560 @@
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-left: 0.5px solid #e8e8e8;
+  box-sizing: border-box;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #111111;
+  line-height: normal;
+}
+
+.resizeHandle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 5px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 2;
+  touch-action: none;
+}
+
+.resizeHandle:hover,
+.sidebarResizing .resizeHandle {
+  background: rgba(17, 17, 17, 0.08);
+}
+
+.sidebarResizing {
+  user-select: none;
+}
+
+.header {
+  flex-shrink: 0;
+  height: 44px;
+  padding: 10px 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 0.5px solid #efefef;
+  box-sizing: border-box;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.brandIcon {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  background: #111111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #ffffff;
+}
+
+.brandName {
+  font-size: 12px;
+  font-weight: 500;
+  color: #111111;
+  white-space: nowrap;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.iconBtn {
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888888;
+  cursor: pointer;
+  padding: 0;
+}
+
+.iconBtn:hover:not(:disabled) {
+  background: #f3f3f3;
+}
+
+.iconBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 6px 0 8px;
+}
+
+.tree {
+  flex: 1;
+}
+
+.emptyState {
+  margin: 16px 12px;
+  font-size: 11px;
+  color: #888888;
+  line-height: 1.5;
+}
+
+/* —— Block 目录 —— */
+
+.dndRoot {
+  touch-action: none;
+}
+
+.blockWrap {
+  position: relative;
+}
+
+.blockWrapDragging {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.blockWrapOverlay {
+  opacity: 1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  border-radius: 6px;
+  background: #ffffff;
+  pointer-events: none;
+  cursor: grabbing;
+  transform: scale(1.02);
+}
+
+.dragOverlayLayer {
+  z-index: 1000;
+  cursor: grabbing;
+}
+
+.rowBodyIndentTransition {
+  transition:
+    padding-left 100ms ease,
+    margin-left 100ms ease;
+}
+
+.overlayLevelBadge {
+  flex-shrink: 0;
+  align-self: center;
+  margin-top: 2px;
+  margin-right: 4px;
+  padding: 1px 5px;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #555555;
+  background: rgba(17, 17, 17, 0.06);
+  border-radius: 3px;
+}
+
+.blockRow {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  min-height: 28px;
+  height: auto;
+  padding: 5px 10px 5px 8px;
+  margin: 0 3px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  cursor: default;
+  box-sizing: border-box;
+}
+
+.blockRow:hover {
+  background: #f5f5f5;
+}
+
+.treeBranch {
+  display: block;
+}
+
+.treeChildren {
+  display: block;
+}
+
+.blockRowActive {
+  background: #f0f0f0;
+}
+
+.blockRow:hover .dragHandle {
+  opacity: 1;
+}
+
+.dragHandle {
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0;
+  color: #aaaaaa;
+  cursor: grab;
+  touch-action: none;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.dragHandleOverlay {
+  opacity: 1;
+  cursor: grabbing;
+}
+
+.rowBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.indentL1 {
+  padding-left: 0;
+}
+
+.indentL2 {
+  padding-left: 12px;
+}
+
+.indentL3 {
+  padding-left: 24px;
+}
+
+.rowTrailing {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 2px;
+  margin-left: 4px;
+}
+
+.deleteBtn {
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0;
+  border: none;
+  padding: 0;
+  background: transparent;
+  color: #aaaaaa;
+  cursor: pointer;
+}
+
+.blockRow:hover .deleteBtn,
+.deleteBtnVisible {
+  opacity: 1;
+}
+
+.deleteBtn:hover {
+  color: #666666;
+}
+
+.deleteBtnConfirm {
+  color: #e53935;
+}
+
+.deleteBtnConfirm:hover {
+  color: #c62828;
+}
+
+.deleteConfirmLabel {
+  font-size: 10px;
+  color: #e53935;
+  white-space: nowrap;
+  line-height: 1;
+  user-select: none;
+}
+
+.chevron {
+  width: 12px;
+  height: 14px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-size: 9px;
+  line-height: 1;
+  color: #cccccc;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.chevronOpen {
+  transform: rotate(90deg);
+  color: #888888;
+}
+
+.chevron:hover {
+  color: #888888;
+}
+
+.blockTitle {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.35;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.titleL1 {
+  font-size: 12px;
+  font-weight: 500;
+  color: #111111;
+}
+
+.titleL2 {
+  font-size: 11px;
+  font-weight: 400;
+  color: #444444;
+}
+
+.titleL3 {
+  font-size: 11px;
+  font-weight: 400;
+  color: #777777;
+}
+
+.expandPanel {
+  margin: 2px 0 6px;
+  padding: 0 12px;
+  box-sizing: border-box;
+}
+
+.expandL1 {
+  margin-left: 30px;
+  margin-right: 6px;
+}
+
+.expandL2 {
+  margin-left: 42px;
+  margin-right: 6px;
+}
+
+.expandL3 {
+  margin-left: 54px;
+  margin-right: 6px;
+}
+
+.expandPreview {
+  background: #fafafa;
+  border: 0.5px solid #eeeeee;
+  border-radius: 5px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: #333333;
+  line-height: 1.6;
+  min-height: 40px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.noteEditorWrap {
+  position: relative;
+}
+
+.noteEditorWrapEditing {
+  padding: 0;
+  margin-top: 8px;
+}
+
+.noteEditor {
+  font-size: 12px;
+  color: #333333;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  outline: none;
+  cursor: text;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* 查看态：纯文字，无边框无背景 */
+.noteEditorView {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding-top: 2px;
+  padding-bottom: 6px;
+  padding-right: 0;
+  min-height: 0;
+  box-shadow: none;
+}
+
+/* 编辑态：居中对称输入框 */
+.noteEditorEditing {
+  background: #ffffff;
+  border: 0.5px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 10px 12px;
+  min-height: 88px;
+  margin: 0 auto;
+  box-shadow: 0 0 0 2px rgba(17, 17, 17, 0.05);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+.noteEditorEditing:focus {
+  border-color: #111111;
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(17, 17, 17, 0.08);
+}
+
+.noteEditorHint {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  color: #aaaaaa;
+  line-height: 1.4;
+  user-select: none;
+  pointer-events: none;
+}
+
+.noteEditorEmpty::before {
+  content: attr(data-placeholder);
+  color: #cccccc;
+  pointer-events: none;
+}
+
+.noteEditor :global(pre.noteCode) {
+  margin: 6px 0;
+  padding: 4px 8px;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    'Liberation Mono', 'Courier New', monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.noteEditor :global(pre.noteCode code) {
+  font-family: inherit;
+  color: inherit;
+  background: transparent;
+}
+
+.settingsPanel {
+  flex-shrink: 0;
+  padding: 10px 12px;
+  border-bottom: 0.5px solid #efefef;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settingsLabel {
+  font-size: 10px;
+  color: #888888;
+}
+
+.settingsInput {
+  width: 100%;
+  border: 0.5px solid #e0e0e0;
+  border-radius: 5px;
+  padding: 6px 8px;
+  font-size: 11px;
+  box-sizing: border-box;
+}
+
+.settingsHint {
+  font-size: 10px;
+  color: #aaaaaa;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.settingsSave {
+  align-self: flex-end;
+  border: none;
+  border-radius: 5px;
+  background: #111111;
+  color: #ffffff;
+  font-size: 11px;
+  padding: 5px 12px;
+  cursor: pointer;
+}
+
+.settingsSave:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.toast {
+  flex-shrink: 0;
+  margin: 6px 8px 0;
+  padding: 8px 10px;
+  background: #fff5f5;
+  border: 0.5px solid #f0c0c0;
+  border-radius: 6px;
+  font-size: 11px;
+  color: #a33;
+  line-height: 1.4;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.toastOk {
+  background: #f0faf0;
+  border-color: #b8e0b8;
+  color: #2d6a2d;
+}
+
+.toastOk .toastClose {
+  color: #2d6a2d;
+}
+
+.toastClose {
+  border: none;
+  background: transparent;
+  color: #a33;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
