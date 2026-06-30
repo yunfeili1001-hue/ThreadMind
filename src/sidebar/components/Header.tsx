@@ -26,8 +26,8 @@ export function Header({
         <button
           type="button"
           className={styles.iconBtn}
-          title="设置 API Key"
-          aria-label="设置"
+          title="API Key settings"
+          aria-label="Settings"
           onClick={onSettingsClick}
         >
           <IconSettings size={14} stroke={1.75} />
@@ -35,8 +35,8 @@ export function Header({
         <button
           type="button"
           className={styles.iconBtn}
-          title={exportDisabled ? '暂无内容' : '复制 Markdown'}
-          aria-label="复制 Markdown"
+          title={exportDisabled ? 'Nothing to export' : 'Copy Markdown'}
+          aria-label="Copy Markdown"
           disabled={exportDisabled}
           onClick={onCopyClick}
         >
@@ -45,8 +45,8 @@ export function Header({
         <button
           type="button"
           className={styles.iconBtn}
-          title={exportDisabled ? '暂无内容' : '导出 Markdown'}
-          aria-label="导出"
+          title={exportDisabled ? 'Nothing to export' : 'Export Markdown'}
+          aria-label="Export"
           disabled={exportDisabled}
           onClick={onExportClick}
         >

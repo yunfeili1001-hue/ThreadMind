@@ -110,7 +110,7 @@ function showOverlay(rect: DOMRect, onCollect: () => void): void {
   btn.id = OVERLAY_ID
   btn.type = 'button'
   btn.className = 'threadmind-collect-btn'
-  btn.textContent = '+ 收集'
+  btn.textContent = '+ Collect'
   btn.addEventListener('mousedown', (e) => e.preventDefault())
   btn.addEventListener('click', (e) => {
     e.stopPropagation()
@@ -156,11 +156,11 @@ async function submitCollect(data: PendingCollect): Promise<void> {
     })
 
     if (!res.ok) {
-      emitThreadMindError(res.error ?? '收集失败')
+      emitThreadMindError(res.error ?? 'Collection failed')
     }
   } catch (err) {
     emitThreadMindError(
-      err instanceof Error ? err.message : '收集请求失败'
+      err instanceof Error ? err.message : 'Collection request failed'
     )
   }
 }
@@ -207,7 +207,7 @@ async function onMouseUp(): Promise<void> {
   if (!blockId) {
     hideOverlay()
     pending = null
-    emitThreadMindError('请先与 ChatGPT 对话生成目录后再收集')
+    emitThreadMindError('Start a ChatGPT conversation to generate blocks before collecting')
     return
   }
 

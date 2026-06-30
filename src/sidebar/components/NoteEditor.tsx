@@ -159,7 +159,7 @@ export function NoteEditor({
         suppressContentEditableWarning
         role="textbox"
         aria-multiline
-        aria-label="Pre 沉淀编辑区"
+        aria-label="Notes editor"
         data-placeholder={NOTE_PLACEHOLDER}
         onInput={handleInput}
         onBlur={handleBlur}
@@ -173,7 +173,7 @@ export function NoteEditor({
           style={indentStyle}
           aria-hidden
         >
-          点击直接编辑 · 自动保存
+          Click to edit · Auto-saves
         </span>
       )}
     </div>

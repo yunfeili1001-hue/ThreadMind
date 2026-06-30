@@ -36,7 +36,7 @@ export function Sidebar() {
   const handleSaveApiKey = async () => {
     const key = normalizeApiKey(apiKeyInput)
     if (!key) {
-      setError('请输入 API Key')
+      setError('Please enter an API Key')
       return
     }
 
@@ -50,16 +50,16 @@ export function Sidebar() {
       })
 
       if (!result.ok) {
-        setError(result.error ?? 'API Key 验证失败')
+        setError(result.error ?? 'API Key verification failed')
         return
       }
 
       await setStoredApiKey(key)
       setSettingsOpen(false)
-      setError('API Key 已保存并验证通过')
+      setError('API Key saved and verified')
       window.setTimeout(() => clearError(), 2500)
     } catch (err) {
-      setError(err instanceof Error ? err.message : '验证请求失败')
+      setError(err instanceof Error ? err.message : 'Verification request failed')
     } finally {
       setSaving(false)
     }
@@ -68,11 +68,11 @@ export function Sidebar() {
   const handleCopyMarkdown = async () => {
     const ok = await copyMarkdown()
     if (ok) {
-      setError('Markdown 已复制到剪贴板')
+      setError('Markdown copied to clipboard')
       window.setTimeout(() => clearError(), 2500)
       return
     }
-    setError('复制失败，请重试')
+    setError('Copy failed, please try again')
   }
 
   return (
@@ -85,7 +85,7 @@ export function Sidebar() {
         className={styles.resizeHandle}
         role="separator"
         aria-orientation="vertical"
-        aria-label="调节侧栏宽度"
+        aria-label="Resize sidebar"
         onPointerDown={startResize}
       />
       <Header
@@ -106,7 +106,7 @@ export function Sidebar() {
             onChange={(e) => setApiKeyInput(e.target.value)}
           />
           <p className={styles.settingsHint}>
-            需在 console.anthropic.com 创建 Key；若仍 401，请为该 Key 开启浏览器访问。
+            Create a key at console.anthropic.com. If you still get 401, enable browser access for that key.
           </p>
           <button
             type="button"
@@ -114,7 +114,7 @@ export function Sidebar() {
             disabled={saving}
             onClick={() => void handleSaveApiKey()}
           >
-            {saving ? '验证中...' : '保存并验证'}
+            {saving ? 'Verifying…' : 'Save & verify'}
           </button>
         </div>
       )}
@@ -122,7 +122,7 @@ export function Sidebar() {
       {error && (
         <div
           className={`${styles.toast} ${
-            error.includes('已保存') || error.includes('已复制')
+            error.includes('saved') || error.includes('copied')
               ? styles.toastOk
               : ''
           }`}
@@ -132,7 +132,7 @@ export function Sidebar() {
           <button
             type="button"
             className={styles.toastClose}
-            aria-label="关闭"
+            aria-label="Close"
             onClick={clearError}
           >
             ×

@@ -86,4 +86,4 @@ export function htmlToNoteContent(root: HTMLElement): string {
 }
 
 export const NOTE_PLACEHOLDER =
-  '在 ChatGPT 回答中选中文字或代码，点击「+ 收集」归入这里'
+  'Select text or code in ChatGPT and click "+ Collect" to add it here'

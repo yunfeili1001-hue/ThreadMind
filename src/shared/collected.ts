@@ -103,13 +103,13 @@ export async function addCollectedToSession(
 ): Promise<{ ok: true; itemId: string } | { ok: false; error: string }> {
   const trimmed = content.trim()
   if (!trimmed) {
-    return { ok: false, error: '收集内容为空' }
+    return { ok: false, error: 'Nothing to collect' }
   }
 
   const session = await getSession(sessionId)
   const index = session.blocks.findIndex((b) => b.id === blockId)
   if (index < 0) {
-    return { ok: false, error: '目标 Block 不存在' }
+    return { ok: false, error: 'Target block not found' }
   }
 
   const block = session.blocks[index]

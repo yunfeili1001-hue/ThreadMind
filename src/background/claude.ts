@@ -9,44 +9,53 @@ import { normalizeAiTitle } from '../shared/blockUtils'
 
 const MODEL_CANDIDATES = [CLAUDE_MODEL_PRIMARY, CLAUDE_MODEL_FALLBACK] as const
 
-const SYSTEM_PROMPT = `你是一个知识提炼助手。根据对话上下文判断三种处理方式之一，并按要求生成字段。
+const SYSTEM_PROMPT = `You are a knowledge-extraction assistant for ThreadMind. Based on the conversation context, choose one of three actions and return the required fields.
 
-## 第一步：这个问题脱离「上一条 AI 回答」lastAiMsg 还能独立成立吗？
-- **能** → shouldCreate: true，进入「新建 Block」流程（判断 level、title、summary）
-- **不能** → 进入第二步
+## Language (mandatory)
+Write **title** and **summary** in the **same language as the current user question**.
+- User question in Chinese → Chinese title and summary
+- User question in English → English title and summary
+- If mixed, follow the dominant language of the user question
+- Never translate into a different language
 
-## 第二步（问题不能独立成立时）：当前 AI 回答用户事后会单独回顾吗？
-- **会**（引入了新概念或新机制）→ shouldCreate: true，level 在「最近一个 Block」的 level 基础上加深一级（L1→2，L2→3；若无最近 Block 则 level 2）
-- **不会**（举例、换个方式解释、追问细节、补充说明）→ appendToPrevious: true，只输出 summary，不新建 Block
+## Step 1: Can this question stand alone without lastAiMsg?
+- **Yes** → shouldCreate: true (new Block: decide level, title, summary)
+- **No** → go to Step 2
 
-## 第三步（忽略）
-纯寒暄、无知识价值、或用户仅要求重复上一句而无新信息 → shouldCreate: false, appendToPrevious: false
+## Step 2 (question depends on context): Will the user revisit this AI answer on its own?
+- **Yes** (new concept or mechanism) → shouldCreate: true, level = most recent Block level + 1 (L1→2, L2→3; if no recent Block, level 2)
+- **No** (example, rephrase, follow-up detail, clarification) → appendToPrevious: true, summary only, no new Block
 
----
-
-### 新建 Block（shouldCreate: true）时额外规则
-
-**level**（结合 lastAiMsg 与历史目录）：
-- 可独立理解的新话题 → level 1
-- 同一话题深入、仍不依赖 lastAiMsg 才能懂 → level 2
-- 必须依赖上文才能理解，且值得单独成节 → 有最近 L2 则 level 3，否则 level 2
-
-**title**（≤12 字，章节名）：
-- 去掉疑问语气与口语前缀
-- 示例：「React 里 Hook 到底是啥」→「React Hook 概念」
-
-**summary**（结构化提取，非段落摘要）：
-- 用 · 表示条目，换行表示层级；总长度 ≤150 字
-- 纯文本，不用 markdown 标题
-
-### 追加到上一 Block（appendToPrevious: true）时
-- 只输出 summary，格式同上，提取本轮回答中值得沉淀的要点
+## Step 3 (ignore)
+Small talk, no knowledge value, or user only asks to repeat with no new info → shouldCreate: false, appendToPrevious: false
 
 ---
 
-只返回 JSON，无其他文字。示例：
+### New Block (shouldCreate: true)
 
-{"shouldCreate": true, "appendToPrevious": false, "level": 1, "title": "React Hook 概念", "summary": "..."}
+**level** (use lastAiMsg + history):
+- New standalone topic → level 1
+- Same topic, deeper, still understandable without lastAiMsg → level 2
+- Requires prior context and worth its own section → level 3 if recent L2 exists, else level 2
+
+**title** (short chapter name):
+- Chinese: ≤12 characters; English: ≤8 words
+- Remove question tone and filler prefixes
+- Example (EN): "What exactly is a React Hook?" → "React Hook Basics"
+- Example (ZH): "React 里 Hook 到底是啥" → "React Hook 概念"
+
+**summary** (structured extraction, not a prose paragraph):
+- Use · for bullets; line breaks for hierarchy; ≤150 characters total
+- Plain text only, no markdown headings
+
+### Append to previous Block (appendToPrevious: true)
+- Output summary only, same format; extract key points worth keeping
+
+---
+
+Return JSON only, no other text. Examples:
+
+{"shouldCreate": true, "appendToPrevious": false, "level": 1, "title": "React Hook Basics", "summary": "..."}
 
 {"shouldCreate": false, "appendToPrevious": true, "summary": "..."}
 
@@ -64,10 +73,10 @@ function parseAnthropicError(status: number, body: string): string {
     const msg = json.error?.message
     if (msg) {
       if (status === 401 || json.error?.type === 'authentication_error') {
-        return `API Key 无效：${msg}。请在 Anthropic 控制台确认 Key 正确。`
+        return `Invalid API Key: ${msg}. Please confirm your key in the Anthropic console.`
       }
       if (isModelNotFound(status, body)) {
-        return `模型不可用：${msg}`
+        return `Model unavailable: ${msg}`
       }
       return `Claude API (${status})：${msg}`
     }
@@ -76,14 +85,14 @@ function parseAnthropicError(status: number, body: string): string {
   }
 
   if (status === 401) {
-    return 'API Key 认证失败 (401)。请检查 Key 是否完整。'
+    return 'API Key authentication failed (401). Please check that your key is complete.'
   }
 
   if (isModelNotFound(status, body)) {
-    return `模型不存在 (404)：${body.slice(0, 120)}`
+    return `Model not found (404): ${body.slice(0, 120)}`
   }
 
-  return `Claude API 错误 (${status})：${body.slice(0, 200)}`
+  return `Claude API error (${status}): ${body.slice(0, 200)}`
 }
 
 function sanitizeGenerateResponse(
@@ -94,7 +103,7 @@ function sanitizeGenerateResponse(
       return {
         shouldCreate: false,
         appendToPrevious: false,
-        error: 'Claude 返回缺少 level / summary',
+        error: 'Claude response missing level / summary',
       }
     }
 
@@ -103,7 +112,7 @@ function sanitizeGenerateResponse(
       return {
         shouldCreate: false,
         appendToPrevious: false,
-        error: 'Claude 返回缺少 title',
+        error: 'Claude response missing title',
       }
     }
 
@@ -121,7 +130,7 @@ function sanitizeGenerateResponse(
       return {
         shouldCreate: false,
         appendToPrevious: false,
-        error: 'Claude 返回缺少 summary（appendToPrevious）',
+        error: 'Claude response missing summary (appendToPrevious)',
       }
     }
     return {
@@ -153,9 +162,24 @@ function buildHeaders(apiKey: string): Record<string, string> {
 }
 
 function formatLastBlock(blocks: Block[]): string {
-  if (blocks.length === 0) return '（无）'
+  if (blocks.length === 0) return '(none)'
   const last = blocks.reduce((a, b) => (b.createdAt >= a.createdAt ? b : a))
   return `"${last.title}", level=${last.level}`
+}
+
+/** Infer output language from the current turn (user question takes priority). */
+function inferOutputLanguage(userMsg: string, aiMsg: string): string {
+  const text = userMsg.trim() || aiMsg.trim()
+  if (!text) return 'Match the user question language'
+
+  const cjk = (text.match(/[\u4e00-\u9fff\u3400-\u4dbf]/g) ?? []).length
+  const latin = (text.match(/[a-zA-Z]/g) ?? []).length
+
+  if (cjk > 0 && cjk >= latin) return 'Chinese (中文)'
+  if (latin > 0 && latin > cjk * 2) return 'English'
+  if (cjk > latin) return 'Chinese (中文)'
+  if (latin > 0) return 'English'
+  return 'Match the user question language'
 }
 
 function buildUserPrompt(
@@ -168,19 +192,23 @@ function buildUserPrompt(
   const lastSection =
     lastAiMsg.length > 0
       ? lastAiMsg
-      : '（无，这是本轮对话的第一条 AI 回答之前）'
+      : '(none — before the first AI reply in this thread)'
 
-  return `历史目录标题：${JSON.stringify(historyTitles)}
+  const outputLanguage = inferOutputLanguage(userMsg, aiMsg)
 
-最近一个 Block（用于第二步 level 加深与 appendToPrevious 目标）：${formatLastBlock(historyBlocks)}
+  return `Output language for title & summary: ${outputLanguage}
 
-上一条 AI 回答（lastAiMsg，用于第一步能否独立成立）：
+History block titles: ${JSON.stringify(historyTitles)}
+
+Most recent Block (for Step 2 level depth & appendToPrevious target): ${formatLastBlock(historyBlocks)}
+
+Previous AI reply (lastAiMsg — Step 1 standalone test):
 ${lastSection}
 
-当前用户问题：
+Current user question:
 ${userMsg}
 
-当前 AI 回答（用于 title 与 summary 提取）：
+Current AI reply (source for title & summary):
 ${aiMsg}`
 }
 
@@ -234,14 +262,14 @@ async function callClaudeOnce(
     }
     const text = data.content?.[0]?.text
     if (!text) {
-      return { shouldCreate: false, error: 'Claude 返回内容为空' }
+      return { shouldCreate: false, error: 'Claude returned empty content' }
     }
 
     try {
       return parseModelJson(text)
     } catch {
       console.error('[ThreadMind] invalid JSON from Claude', text)
-      return { shouldCreate: false, error: 'Claude 返回格式异常，请重试' }
+      return { shouldCreate: false, error: 'Invalid response format from Claude, please retry' }
     }
   } finally {
     clearTimeout(timeout)
@@ -257,7 +285,7 @@ async function callWithModelFallback(
 ): Promise<GenerateBlockResponse> {
   let lastError: GenerateBlockResponse = {
     shouldCreate: false,
-    error: 'Claude 请求失败',
+    error: 'Claude request failed',
   }
 
   for (const model of MODEL_CANDIDATES) {
@@ -288,12 +316,12 @@ async function callWithModelFallback(
 export async function verifyApiKey(rawKey?: string): Promise<{ ok: boolean; error?: string }> {
   const apiKey = rawKey ? normalizeApiKey(rawKey) : await getStoredApiKey()
   if (!apiKey) {
-    return { ok: false, error: '请先输入 API Key' }
+    return { ok: false, error: 'Please enter an API Key first' }
   }
   if (!apiKey.startsWith('sk-ant-')) {
     return {
       ok: false,
-      error: 'Key 格式异常：Anthropic Key 通常以 sk-ant- 开头',
+      error: 'Invalid key format: Anthropic keys usually start with sk-ant-',
     }
   }
 
@@ -328,9 +356,9 @@ export async function verifyApiKey(rawKey?: string): Promise<{ ok: boolean; erro
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       if (msg.includes('abort')) {
-        return { ok: false, error: '验证超时，请检查网络' }
+        return { ok: false, error: 'Verification timed out, please check your network' }
       }
-      return { ok: false, error: `验证失败：${msg}` }
+      return { ok: false, error: `Verification failed: ${msg}` }
     } finally {
       clearTimeout(timeout)
     }
@@ -338,7 +366,7 @@ export async function verifyApiKey(rawKey?: string): Promise<{ ok: boolean; erro
 
   return {
     ok: false,
-    error: '当前账号无法使用配置的 Claude 模型，请在 Anthropic 控制台查看可用模型',
+    error: 'Your account cannot use the configured Claude models. Check available models in the Anthropic console.',
   }
 }
 
@@ -356,7 +384,7 @@ export async function generateBlockWithClaude(
   if (!apiKey) {
     return {
       shouldCreate: false,
-      error: '请先配置 Claude API Key（点击侧栏设置图标）',
+      error: 'Please configure your Claude API Key first (click the settings icon in the sidebar)',
     }
   }
 
@@ -382,9 +410,9 @@ export async function generateBlockWithClaude(
       const msg =
         retryErr instanceof Error ? retryErr.message : String(retryErr)
       if (msg.includes('abort')) {
-        return { shouldCreate: false, error: '生成超时，请稍后重试' }
+        return { shouldCreate: false, error: 'Generation timed out, please try again later' }
       }
-      return { shouldCreate: false, error: '生成失败，请稍后重试' }
+      return { shouldCreate: false, error: 'Generation failed, please try again later' }
     }
   }
 }

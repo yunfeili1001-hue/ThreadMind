@@ -98,7 +98,7 @@ function BlockItemContent({
         <span
           className={`${styles.dragHandle} ${overlay ? styles.dragHandleOverlay : ''}`}
           aria-hidden={overlay}
-          aria-label={overlay ? undefined : '拖动排序'}
+          aria-label={overlay ? undefined : 'Drag to reorder'}
           {...(overlay ? {} : dragHandleProps)}
         >
           <IconGripVertical size={11} stroke={1.75} />
@@ -112,7 +112,7 @@ function BlockItemContent({
             type="button"
             className={`${styles.chevron} ${block.isExpanded ? styles.chevronOpen : ''}`}
             aria-expanded={block.isExpanded}
-            aria-label={block.isExpanded ? '折叠' : '展开 Pre 沉淀'}
+            aria-label={block.isExpanded ? 'Collapse notes' : 'Expand notes'}
             onClick={() => onToggleExpand(block.id)}
             disabled={readOnly || overlay}
           >
@@ -135,14 +135,14 @@ function BlockItemContent({
         {!readOnly && !overlay && (
           <div className={styles.rowTrailing}>
             {confirmDelete && (
-              <span className={styles.deleteConfirmLabel}>确认删除</span>
+              <span className={styles.deleteConfirmLabel}>Confirm delete</span>
             )}
             <button
               type="button"
               className={`${styles.deleteBtn} ${
                 confirmDelete ? styles.deleteBtnConfirm : ''
               } ${confirmDelete ? styles.deleteBtnVisible : ''}`}
-              aria-label={confirmDelete ? '确认删除' : '删除'}
+              aria-label={confirmDelete ? 'Confirm delete' : 'Delete'}
               onClick={handleDeleteClick}
               onPointerDown={(e) => e.stopPropagation()}
             >

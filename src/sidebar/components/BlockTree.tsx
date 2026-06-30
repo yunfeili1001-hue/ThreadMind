@@ -115,7 +115,7 @@ export function BlockTree({
   if (flatBlocks.length === 0) {
     return (
       <p className={styles.emptyState}>
-        暂无目录，开始与 ChatGPT 对话后将自动生成。
+        No blocks yet. Start chatting with ChatGPT to generate them.
       </p>
     )
   }

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "ThreadMind",
   "version": "0.6.0",
-  "description": "把每一次 AI 对话变成结构化知识",
+  "description": "Turn every AI conversation into structured knowledge",
   "permissions": ["storage", "activeTab"],
   "host_permissions": [
     "https://chatgpt.com/*",
