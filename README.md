@@ -19,6 +19,8 @@ The core philosophy is:
 
 > **The outline visualizes the thinking process, while knowledge retention is the ultimate goal.**
 
+![overview](images/export.png)
+
 ---
 
 ## Why ThreadMind?
